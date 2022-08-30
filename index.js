@@ -7,7 +7,6 @@ const {URL} = require('url')
 const { normalizePath } = require('vite')
 
 module.exports = function vitePluginAliOss (options) {
-  let baseConfig = '/'
   let buildConfig = ''
 
   if (options.enabled !== void 0 && !options.enabled) {
@@ -19,17 +18,16 @@ module.exports = function vitePluginAliOss (options) {
     enforce: 'post',
     apply: 'build',
     configResolved (config) {
-      baseConfig = config.base
       buildConfig = config.build
     },
     async closeBundle () {
-      if (!/^http/i.test(baseConfig)) {
+      if (!/^http/i.test(options.base)) {
         throw Error('[vite-plugin-ali-oss] base must be a url')
       }
 
       const outDirPath = normalizePath(path.resolve(normalizePath(buildConfig.outDir)))
 
-      const {pathname: ossBasePath, origin: ossOrigin} = new URL(baseConfig)
+      const {pathname: ossBasePath, origin: ossOrigin} = new URL(options.base)
 
       const createOssOption = Object.assign({}, options)
       delete createOssOption.overwrite
